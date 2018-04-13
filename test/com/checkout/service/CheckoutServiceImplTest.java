@@ -2,14 +2,18 @@ package com.checkout.service;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.checkout.factory.OfferManagerFactory;
 import com.checkout.model.Item;
+import com.checkout.model.Offer;
 
 public class CheckoutServiceImplTest {
 	private CheckoutServiceImpl checkoutServiceImpl;
@@ -66,5 +70,35 @@ public class CheckoutServiceImplTest {
 		
 		double totalCost = checkoutServiceImpl.calculateBill(items);
 		Assert.assertEquals(0.25, totalCost, 0.00);
+	}
+	
+	@Test
+	public void testCalculateBillWithOffers() {
+		List<Offer> offers = new ArrayList() {{
+			add(OfferManagerFactory.getInstance().buildOfferBuyOneGetOneForApple());
+		}};
+		
+		Map<Item, Integer> items = new HashMap() {{
+			put(Item.APPLE, 3);
+		}};
+		
+		double totalCost = checkoutServiceImpl.calculateBill(items, offers);
+		Assert.assertEquals(1.20, totalCost, 0.00);
+	}
+	
+	@Test
+	public void testCalculateBillWithMutipleOffersMutipleItems() {
+		List<Offer> offers = new ArrayList() {{
+			add(OfferManagerFactory.getInstance().buildOfferBuyOneGetOneForApple());
+			add(OfferManagerFactory.getInstance().buildOfferThreeForPriceTwoForOrange());
+		}};
+		
+		Map<Item, Integer> items = new HashMap() {{
+			put(Item.APPLE, 9);
+			put(Item.ORANGE, 7);
+		}};
+		
+		double totalCost = checkoutServiceImpl.calculateBill(items, offers);
+		Assert.assertEquals(4.25, totalCost, 0.00);
 	}
 }
